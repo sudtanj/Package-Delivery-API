@@ -27,12 +27,9 @@ class PackageController extends Controller
     public function store(Request $request)
     {
         $bodyContent = $request->getContent();
-        $package = new Package();
-        foreach ($bodyContent AS $key => $value) {
-            $package->{$key} = $value;
-        }
-        $package->save();
-        return response()->json($package);
+        $array = json_decode($bodyContent, true);
+        $result = Package::create($array);
+        return response()->json($result);
     }
 
     /**
@@ -43,7 +40,11 @@ class PackageController extends Controller
      */
     public function show($id)
     {
-        return response()->json(Package::find($id));
+        $package = Package::find($id);
+        if (!$package) {
+            throw new NotFoundHttpException("package id not found!");
+        }
+        return response()->json($package);
     }
 
     /**
@@ -63,10 +64,8 @@ class PackageController extends Controller
         if (!$package && $request->isMethod('patch')) {
             throw new NotFoundHttpException("Package id not found!");
         }
-        foreach ($bodyContent AS $key => $value) {
-            $package->{$key} = $value;
-        }
-        $package->save();
+        $array = json_decode($bodyContent, true);
+        $package->update($array);
         return response()->json($package);
     }
 
@@ -82,7 +81,7 @@ class PackageController extends Controller
         if (!$package) {
             throw new NotFoundHttpException("Package id not found!");
         }
-        $package->softDeletes();
+        $package->delete();
         return response()->json($package);
     }
 }
