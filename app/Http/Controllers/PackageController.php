@@ -57,7 +57,10 @@ class PackageController extends Controller
     {
         $bodyContent = $request->getContent();
         $package = Package::find($id);
-        if (!$package) {
+        if (!$package && $request->isMethod('put')) {
+            return $this->store($request);
+        }
+        if (!$package && $request->isMethod('patch')) {
             throw new NotFoundHttpException("Package id not found!");
         }
         foreach ($bodyContent AS $key => $value) {
